@@ -17,6 +17,8 @@ const DragLayer: React.FC = () => {
   } = useStore();
   const { camera, raycaster, mouse } = useThree();
   const [position, setPosition] = useState<THREE.Vector3 | null>(null);
+  const [dragStartedIntoScene, setDragStartedIntoScene] = useState(false);
+  const initialMousePos = useRef<{x: number, y: number} | null>(null);
   const planeRef = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
   const intersectionPoint = new THREE.Vector3();
 
@@ -32,15 +34,31 @@ const DragLayer: React.FC = () => {
     if (!draggingModule) {
       if (position) setPosition(null);
       lastValidPos.current = null;
+      initialMousePos.current = null;
+      if (dragStartedIntoScene) setDragStartedIntoScene(false);
       return;
+    }
+
+    if (!initialMousePos.current) {
+      initialMousePos.current = { x: mouse.x, y: mouse.y };
+    }
+
+    // Seuil de détection du drag (en coordonnées normalisées -1 à 1)
+    const dist = Math.sqrt(Math.pow(mouse.x - initialMousePos.current.x, 2) + Math.pow(mouse.y - initialMousePos.current.y, 2));
+    if (!dragStartedIntoScene && dist > 0.05) {
+      setDragStartedIntoScene(true);
     }
 
     raycaster.setFromCamera(mouse, camera);
     if (raycaster.ray.intersectPlane(planeRef.current, intersectionPoint)) {
-      // Y=0 → calculateSnapping applies surface-drop to find the correct height automatically
+      // Si on n'a pas encore bougé la souris (Simple clic), on force le centre (0,0,0)
+      const rawPos = dragStartedIntoScene 
+        ? new THREE.Vector3(intersectionPoint.x, 0, intersectionPoint.z)
+        : new THREE.Vector3(0, 0, 0);
+
       const snapped = calculateSnapping(
         draggingModule, 
-        new THREE.Vector3(intersectionPoint.x, 0, intersectionPoint.z), 
+        rawPos, 
         placedModules, 
         standWidth, 
         standDepth,

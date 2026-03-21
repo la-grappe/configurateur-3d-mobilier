@@ -41,37 +41,49 @@ export const useStore = create<State>((set) => ({
   rotateModule: (id) => set((state) => ({
     placedModules: state.placedModules.map((m) => {
       if (m.id !== id) return m;
-      if (m.type === 'plateau') {
-        // Toggle between flat (X=0) and vertical (X=π/2)
-        const isVertical = Math.abs(m.rotation[0]) > 0.1;
-        return { ...m, rotation: [isVertical ? 0 : Math.PI / 2, m.rotation[1], m.rotation[2]] };
-      }
-      // Rectangles / cubes: rotate around Y by 90°
-      return { ...m, rotation: [m.rotation[0], m.rotation[1] + Math.PI / 2, m.rotation[2]] };
+      // Normalisation: on garde l'angle entre 0 et 2PI
+      const newY = (m.rotation[1] + Math.PI / 2) % (Math.PI * 2);
+      return { ...m, rotation: [m.rotation[0], newY, m.rotation[2]] };
     })
   })),
   setModuleVertical: (id) => set((state) => ({
     placedModules: state.placedModules.map((m) => {
       if (m.id !== id) return m;
       if (m.type === 'plateau') {
-        // Stand the plateau upright as a vertical panel (rotate around X)
-        return { ...m, rotation: [Math.PI / 2, m.rotation[1], m.rotation[2]] };
+        const isVertical = Math.abs(m.rotation[0] - Math.PI / 2) < 0.1;
+        if (isVertical) {
+          const currentBottom = m.position[1] - 40;
+          return {
+            ...m,
+            position: [m.position[0], currentBottom + 1.25, m.position[2]],
+            rotation: [0, m.rotation[1], m.rotation[2]]
+          };
+        } else {
+          const currentBottom = m.position[1] - 1.25;
+          return {
+            ...m,
+            position: [m.position[0], currentBottom + 40, m.position[2]],
+            rotation: [Math.PI / 2, m.rotation[1], m.rotation[2]]
+          };
+        }
       }
       if (m.type === 'rectangle') {
-        // Stand on narrow side (rotate around Z).
-        // Preserve the bottom surface so it stays on the ground or on whatever was below it.
-        //   Flat half-height = 40/2 = 20 cm
-        //   Vertical half-height = 67/2 = 33.5 cm
-        //   Bottom before = cy - 20
-        //   To keep bottom the same after: cy_new = (cy - 20) + 33.5 = cy + 13.5
-        const currentBottom = m.position[1] - 20;
-        const newHalfHeight = 67 / 2;
-        const newY = currentBottom + newHalfHeight;
-        return {
-          ...m,
-          position: [m.position[0], newY, m.position[2]],
-          rotation: [m.rotation[0], m.rotation[1], Math.PI / 2],
-        };
+        const isVertical = Math.abs(m.rotation[2] - Math.PI / 2) < 0.1;
+        if (isVertical) {
+          const currentBottom = m.position[1] - 67 / 2;
+          return {
+            ...m,
+            position: [m.position[0], currentBottom + 20, m.position[2]],
+            rotation: [m.rotation[0], m.rotation[1], 0],
+          };
+        } else {
+          const currentBottom = m.position[1] - 20;
+          return {
+            ...m,
+            position: [m.position[0], currentBottom + 67 / 2, m.position[2]],
+            rotation: [m.rotation[0], m.rotation[1], Math.PI / 2],
+          };
+        }
       }
       return m;
     })

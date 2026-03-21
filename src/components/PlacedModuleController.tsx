@@ -12,7 +12,7 @@ interface PlacedModuleControllerProps {
 
 const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module }) => {
   const {
-    updateModule, rotateModule, setModuleVertical,
+    updateModule, rotateModule, setModuleVertical, removeModule,
     setSelectedModuleId, selectedModuleId,
     standWidth, standDepth, placedModules, setIsInteracting
   } = useStore();
@@ -40,6 +40,12 @@ const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module 
           if (module.type === 'rectangle' || module.type === 'plateau') {
             setModuleVertical(module.id);
           }
+          break;
+
+        case 'Delete': 
+        case 'Backspace':
+          removeModule(module.id);
+          setSelectedModuleId(null);
           break;
 
         case 'h': case 'H': {
@@ -73,7 +79,7 @@ const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedModuleId, module.id, module.type, module.position, placedModules,
-      rotateModule, setModuleVertical, updateModule]);
+    rotateModule, setModuleVertical, updateModule]);
 
   // ---- Dragging state ----
   // Drag only starts after the mouse moves > DRAG_THRESHOLD_PX since pointerDown,
@@ -151,16 +157,18 @@ const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module 
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
 
-  // Hit-target bounding box (must match MODULE_SIZES in snapping.ts)
-  const hitW = module.type === 'cube' ? 40 : module.type === 'rectangle' ? 67 : 80;
-  const hitH = module.type === 'plateau' ? 2.5 : 40;
-  const hitD = module.type === 'plateau' ? 80 : 40;
+  // Hit-target bounding box (must match MODULE_SIZES)
+  const size = {
+    cube:      { width: 40,  height: 40,  depth: 40 },
+    rectangle: { width: 67,  height: 40,  depth: 40 },
+    plateau:   { width: 80,  height: 2.5, depth: 80 },
+  }[module.type];
 
   return (
     <group
       ref={meshRef}
       position={module.position}
-      rotation={[module.rotation[0], module.rotation[1], module.rotation[2]]}
+      rotation={new THREE.Euler(module.rotation[0], module.rotation[1], module.rotation[2], 'YXZ')}
       onPointerDown={handlePointerDown}
     >
       <ModularBlock
@@ -169,7 +177,7 @@ const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module 
       />
       {/* Invisible box for easier click-picking */}
       <mesh visible={false}>
-        <boxGeometry args={[hitW, hitH, hitD]} />
+        <boxGeometry args={[size.width, size.height, size.depth]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
     </group>
