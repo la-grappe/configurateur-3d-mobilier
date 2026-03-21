@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStore } from '../store/useStore';
 import { Maximize, Box, Camera, Eraser, FileText } from 'lucide-react';
-import QuoteModal from './QuoteModal';
+import { QuoteModal } from './QuoteModal';
 
 const COLORS = [
   { name: 'Blanc', hex: '#ffffff' },
@@ -22,10 +22,9 @@ const UI: React.FC = () => {
     draggingModule,
     setDraggingModule,
     selectedColor,
-    setSelectedColor
+    setSelectedColor,
+    setQuoteModalOpen
   } = useStore();
-
-  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
   return (
     <div className="ui-overlay">
@@ -87,7 +86,7 @@ const UI: React.FC = () => {
           <button 
             className="flex items-center gap-2"
             style={{ backgroundColor: '#10b981', borderColor: '#059669' }}
-            onClick={() => setIsQuoteOpen(true)}
+            onClick={() => setQuoteModalOpen(true)}
           >
             <FileText size={18} />
             <span>Générer le devis</span>
@@ -186,7 +185,7 @@ const UI: React.FC = () => {
         </div>
       </div>
 
-      {isQuoteOpen && <QuoteModal onClose={() => setIsQuoteOpen(false)} />}
+      <QuoteModal />
     </div>
   );
 };

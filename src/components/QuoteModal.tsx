@@ -1,10 +1,6 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useStore } from '../store/useStore';
-import { X, FileText, ShoppingCart, User } from 'lucide-react';
-
-interface QuoteModalProps {
-  onClose: () => void;
-}
+import { ShoppingCart, User } from 'lucide-react';
 
 const COLOR_NAMES: Record<string, string> = {
   '#ffffff': 'Blanc',
@@ -15,7 +11,9 @@ const COLOR_NAMES: Record<string, string> = {
   '#8b5cf6': 'Violet'
 };
 
-const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
+export const QuoteModal = () => {
+  const isQuoteModalOpen = useStore((state) => state.isQuoteModalOpen);
+  const setQuoteModalOpen = useStore((state) => state.setQuoteModalOpen);
   const placedModules = useStore((state) => state.placedModules);
 
   const stats = useMemo(() => {
@@ -39,55 +37,64 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
     return { cubes, rectangles, plateaux, colors };
   }, [placedModules]);
 
+  if (!isQuoteModalOpen) return null;
+
   const totalModules = stats.cubes + stats.rectangles + stats.plateaux;
   const totalFaces = Object.values(stats.colors).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="quote-overlay">
-      <div className="quote-paper shadow-2xl" style={{ position: 'relative' }}>
-        {/* Absolute Close Button */}
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 pointer-events-auto" 
+      onClick={() => setQuoteModalOpen(false)}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      {/* La boîte blanche du devis */}
+      <div 
+        className="relative bg-white p-8 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" 
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        
+        {/* LE BOUTON FERMER (Obligatoire) */}
         <button 
-          onClick={onClose}
-          className="close-quote-btn"
-          style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', zIndex: 10 }}
+          onClick={() => setQuoteModalOpen(false)} 
+          className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-3xl font-bold leading-none"
+          aria-label="Fermer"
         >
-          <X size={28} color="#000" />
+          &times;
         </button>
 
-        {/* Header Section */}
-        <div className="quote-header">
-          <div className="flex justify-between items-start">
-            <div className="quote-logo-side">
-              <img src="/logo.png" alt="Muto Event" style={{ height: '50px', objectFit: 'contain', marginBottom: '1.5rem' }} />
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-xl uppercase tracking-wider text-black">Muto Event - Mobiliers</span>
-              </div>
-              <p className="text-gray-500 text-sm">Configurateur de stands modualires</p>
-            </div>
-          </div>
-          
-          <div className="quote-title-block mt-12">
-            <h2 className="text-3xl font-bold border-b-2 border-black pb-2">Devis Estimatif</h2>
-            <div className="flex justify-between mt-4 text-sm text-gray-600">
-              <span>Date: {new Date().toLocaleDateString('fr-FR')}</span>
-              <span>Réf: DE-{Math.floor(Math.random() * 90000 + 10000)}</span>
-            </div>
-          </div>
+        {/* L'EN-TÊTE AVEC LE LOGO */}
+        <div className="flex flex-col sm:flex-row items-center justify-between border-b pb-4 mb-6 gap-4">
+          <img 
+            src="/logo.png" 
+            alt="Muto Event" 
+            className="h-16 w-auto object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }} 
+          />
+          <h2 className="text-2xl font-bold text-gray-800 uppercase tracking-wider text-right">
+            Devis Estimatif
+          </h2>
         </div>
 
         {/* Content Section */}
-        <div className="quote-content mt-12 px-2 flex-grow">
+        <div className="quote-content flex-grow">
+          <div className="flex justify-between mt-4 text-sm text-gray-600 mb-6 font-medium">
+            <span>Date: {new Date().toLocaleDateString('fr-FR')}</span>
+            <span>Réf: DE-{Math.floor(Math.random() * 90000 + 10000)}</span>
+          </div>
+
           {placedModules.length === 0 ? (
             <div className="text-center py-20 text-gray-400">
               <ShoppingCart size={48} className="mx-auto mb-4 opacity-20" color="#9ca3af" />
               <p>Votre stand est vide. Ajoutez des modules pour générer un devis.</p>
             </div>
           ) : (
-            <table className="w-full quote-table">
+            <table className="w-full quote-table" style={{ color: '#1a1a1a' }}>
               <thead>
                 <tr>
-                  <th className="text-left py-3 text-gray-400 font-semibold uppercase text-xs">Désignation</th>
-                  <th className="text-right py-3 text-gray-400 font-semibold uppercase text-xs">Quantité</th>
+                  <th className="text-left py-3 text-gray-400 font-semibold uppercase text-xs border-b">Désignation</th>
+                  <th className="text-right py-3 text-gray-400 font-semibold uppercase text-xs border-b">Quantité</th>
                 </tr>
               </thead>
               <tbody>
@@ -132,8 +139,8 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
               </tbody>
               <tfoot>
                 <tr>
-                  <td className="pt-10 text-xl font-bold uppercase border-t-2 border-black">Total Éléments Mobiliers</td>
-                  <td className="pt-10 text-right text-xl font-bold border-t-2 border-black">
+                  <td className="pt-10 text-xl font-bold uppercase border-t-2 border-black" style={{ borderTop: '2px solid black' }}>Total Éléments Mobiliers</td>
+                  <td className="pt-10 text-right text-xl font-bold border-t-2 border-black" style={{ borderTop: '2px solid black' }}>
                     {totalModules} unités
                   </td>
                 </tr>
@@ -143,13 +150,14 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
         </div>
 
         {/* Footer Section */}
-        <div className="quote-footer border-t border-gray-100 pt-8 mt-12 flex justify-between items-center text-sm text-gray-400">
+        <div className="quote-footer border-t border-gray-100 pt-8 mt-12 flex justify-between items-center text-sm text-gray-400" style={{ borderTop: '1px solid #f3f4f6' }}>
           <div className="flex items-center gap-2">
              <User size={16} color="#9ca3af" />
              <span>Document généré numériquement - Muto Event</span>
           </div>
           <button 
             className="print-btn"
+            style={{ backgroundColor: '#2563eb', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 'bold' }}
             onClick={() => window.print()}
           >
             Exporter en PDF
@@ -159,5 +167,3 @@ const QuoteModal: React.FC<QuoteModalProps> = ({ onClose }) => {
     </div>
   );
 };
-
-export default QuoteModal;

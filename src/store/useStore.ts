@@ -29,6 +29,8 @@ interface State {
   selectedColor: string | null;
   setSelectedColor: (color: string | null) => void;
   setModuleFaceColor: (moduleId: string, faceIndex: number, color: string) => void;
+  isQuoteModalOpen: boolean;
+  setQuoteModalOpen: (isOpen: boolean) => void;
 }
 
 export const useStore = create<State>((set) => ({
@@ -125,4 +127,6 @@ export const useStore = create<State>((set) => ({
       };
     })
   })),
+  isQuoteModalOpen: false,
+  setQuoteModalOpen: (isOpen) => set({ isQuoteModalOpen: isOpen }),
 }));
