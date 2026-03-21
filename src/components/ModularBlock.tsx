@@ -24,7 +24,6 @@ const InteractiveFace: React.FC<InteractiveFaceProps> = ({ moduleId, size, posit
   // 3. Otherwise -> invisible
   const color = storedColor || (hovered ? "#facc15" : "#ffffff");
   const opacity = storedColor ? 1 : (hovered ? 0.4 : 0);
-  const transparent = !storedColor && !hovered ? true : (storedColor ? false : true);
 
   return (
     <Plane
@@ -46,7 +45,8 @@ const InteractiveFace: React.FC<InteractiveFaceProps> = ({ moduleId, size, posit
       }}
     >
       <meshStandardMaterial
-        transparent={transparent}
+        transparent={true}
+        depthWrite={false}
         opacity={opacity}
         color={color}
         side={2} // DoubleSide
