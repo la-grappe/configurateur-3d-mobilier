@@ -172,8 +172,10 @@ const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module 
       onPointerDown={handlePointerDown}
     >
       <ModularBlock
+        id={module.id}
         type={module.type}
         color={selectedModuleId === module.id ? '#3b82f6' : '#ffffff'}
+        faceColors={module.faceColors}
       />
       {/* Invisible box for easier click-picking */}
       <mesh visible={false}>

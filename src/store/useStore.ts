@@ -5,6 +5,7 @@ export interface PlacedModule {
   type: 'cube' | 'rectangle' | 'plateau';
   position: [number, number, number];
   rotation: [number, number, number];
+  faceColors?: Record<number, string>;
 }
 
 interface State {
@@ -25,6 +26,9 @@ interface State {
   setSelectedModuleId: (id: string | null) => void;
   isInteracting: boolean;
   setIsInteracting: (interacting: boolean) => void;
+  selectedColor: string | null;
+  setSelectedColor: (color: string | null) => void;
+  setModuleFaceColor: (moduleId: string, faceIndex: number, color: string) => void;
 }
 
 export const useStore = create<State>((set) => ({
@@ -102,4 +106,23 @@ export const useStore = create<State>((set) => ({
   setSelectedModuleId: (id) => set({ selectedModuleId: id }),
   isInteracting: false,
   setIsInteracting: (interacting) => set({ isInteracting: interacting }),
+  selectedColor: null,
+  setSelectedColor: (color) => set({ selectedColor: color }),
+  setModuleFaceColor: (moduleId, faceIndex, color) => set((state) => ({
+    placedModules: state.placedModules.map((m) => {
+      if (m.id !== moduleId) return m;
+      const newFaceColors = { ...(m.faceColors || {}) };
+      
+      if (color === 'transparent') {
+        delete newFaceColors[faceIndex];
+      } else {
+        newFaceColors[faceIndex] = color;
+      }
+
+      return {
+        ...m,
+        faceColors: newFaceColors
+      };
+    })
+  })),
 }));

@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Maximize, Box, Camera } from 'lucide-react';
+import { Maximize, Box, Camera, Eraser, FileText } from 'lucide-react';
+import QuoteModal from './QuoteModal';
+
+const COLORS = [
+  { name: 'Blanc', hex: '#ffffff' },
+  { name: 'Bois', hex: '#d2b48c' },
+  { name: 'Bleu', hex: '#0a192f' },
+  { name: 'Gris', hex: '#e5e7eb' },
+  { name: 'Jaune', hex: '#facc15' },
+  { name: 'Violet', hex: '#8b5cf6' },
+];
 
 const UI: React.FC = () => {
   const { 
@@ -10,15 +20,19 @@ const UI: React.FC = () => {
     cameraView, 
     setCameraView,
     draggingModule,
-    setDraggingModule
+    setDraggingModule,
+    selectedColor,
+    setSelectedColor
   } = useStore();
+
+  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
   return (
     <div className="ui-overlay">
-      <div className="top-section">
+      <div className="top-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
         <div className="glass controls-panel">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <Box className="text-blue-400" size={24} color="#3b82f6" />
+            <Box size={24} color="#3b82f6" />
             <h1>Configurateur 3D</h1>
           </div>
           
@@ -68,9 +82,64 @@ const UI: React.FC = () => {
             <p className="hint">Maintenez pour glisser dans la scène</p>
           </div>
         </div>
+
+        <div className="glass quote-trigger-panel" style={{ padding: '0.5rem' }}>
+          <button 
+            className="flex items-center gap-2"
+            style={{ backgroundColor: '#10b981', borderColor: '#059669' }}
+            onClick={() => setIsQuoteOpen(true)}
+          >
+            <FileText size={18} />
+            <span>Générer le devis</span>
+          </button>
+        </div>
       </div>
 
-      <div className="bottom-section" style={{ display: 'flex', justifyContent: 'center' }}>
+      <div className="bottom-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="glass color-palette">
+          <button 
+            className={`color-btn ${selectedColor === 'transparent' ? 'active' : ''}`}
+            style={{ 
+              backgroundColor: '#374151', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: 'white'
+            }}
+            onClick={() => setSelectedColor('transparent')}
+            title="Gomme (Vider)"
+          >
+            <Eraser size={16} />
+          </button>
+
+          <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', alignSelf: 'center' }} />
+
+          {COLORS.map((color) => (
+            <button
+              key={color.hex}
+              className={`color-btn ${selectedColor === color.hex ? 'active' : ''}`}
+              style={{ backgroundColor: color.hex }}
+              onClick={() => setSelectedColor(selectedColor === color.hex ? null : color.hex)}
+              title={color.name}
+            />
+          ))}
+          <button 
+            className={`color-btn ${selectedColor === null ? 'active' : ''}`}
+            style={{ 
+              backgroundColor: 'transparent', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              fontSize: '12px',
+              color: 'rgba(255,255,255,0.6)'
+            }}
+            onClick={() => setSelectedColor(null)}
+            title="Sélecteur"
+          >
+            ✕
+          </button>
+        </div>
+
         <div className="glass camera-menu">
           <button 
             className={cameraView === 'perspective' ? 'active' : ''} 
@@ -116,6 +185,8 @@ const UI: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {isQuoteOpen && <QuoteModal onClose={() => setIsQuoteOpen(false)} />}
     </div>
   );
 };
