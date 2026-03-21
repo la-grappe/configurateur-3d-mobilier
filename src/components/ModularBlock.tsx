@@ -126,10 +126,10 @@ const ModularBlock: React.FC<ModularBlockProps> = ({ id, type, position = [0, 0,
 
   // Faces logic
   const faces = useMemo(() => {
-    const offset = 0.1;
-    const internalW = width - 0.2;
-    const internalH = height - 0.2;
-    const internalD = depth - 0.2;
+    const offset = 0.2;
+    const internalW = width - 0.4;
+    const internalH = height - 0.4;
+    const internalD = depth - 0.4;
 
     return [
       { size: [internalW, internalD], pos: [0, height / 2 - offset, 0], rot: [-Math.PI / 2, 0, 0] }, // Top (0)
