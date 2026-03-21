@@ -41,9 +41,16 @@ export const useStore = create<State>((set) => ({
   rotateModule: (id) => set((state) => ({
     placedModules: state.placedModules.map((m) => {
       if (m.id !== id) return m;
-      // Normalisation: on garde l'angle entre 0 et 2PI
-      const newY = (m.rotation[1] + Math.PI / 2) % (Math.PI * 2);
-      return { ...m, rotation: [m.rotation[0], newY, m.rotation[2]] };
+
+      // Plateau : Rotation sur Y uniquement s'il n'est pas vertical (X=0)
+      if (m.type === 'plateau') {
+        const newRotY = Math.abs(m.rotation[1]) > 0.1 ? 0 : Math.PI / 2;
+        return { ...m, rotation: [m.rotation[0], newRotY, m.rotation[2]] };
+      }
+
+      // Cubes et Rectangles : Toggle binaire strict sur Y
+      const newRotY = Math.abs(m.rotation[1]) > 0.1 ? 0 : Math.PI / 2;
+      return { ...m, rotation: [m.rotation[0], newRotY, m.rotation[2]] };
     })
   })),
   setModuleVertical: (id) => set((state) => ({

@@ -18,20 +18,16 @@ export const getModuleAABBDimensions = (type: 'cube' | 'rectangle' | 'plateau', 
   let d = baseSize.depth;
 
   const rotArray = rotation instanceof THREE.Euler ? [rotation.x, rotation.y, rotation.z] : rotation;
-  const turns = rotArray.map(r => Math.abs(Math.round(r / (Math.PI / 2))) % 4);
 
-  // 1. Horizontal rotation (Spin around Y)
-  if (turns[1] === 1 || turns[1] === 3) {
-    [w, d] = [d, w];
-  }
-  // 2. Front/Back flip (X axis)
-  if (turns[0] === 1 || turns[0] === 3) {
-    [h, d] = [d, h];
-  }
-  // 3. Side flip (Z axis)
-  if (turns[2] === 1 || turns[2] === 3) {
-    [w, h] = [h, w];
-  }
+  // Vérifications binaires simples (0° ou 90°)
+  const isRotatedX = Math.abs(rotArray[0]) > 0.1; // Plateau basculé à la verticale
+  const isRotatedY = Math.abs(rotArray[1]) > 0.1; // Rotation toupie (touche R)
+  const isRotatedZ = Math.abs(rotArray[2]) > 0.1; // Rectangle basculé à la verticale
+
+  // Application des inversions de dimensions
+  if (isRotatedY) [w, d] = [d, w];
+  if (isRotatedX) [h, d] = [d, h];
+  if (isRotatedZ) [w, h] = [h, w];
 
   return { trueW: w, trueH: h, trueD: d };
 };
