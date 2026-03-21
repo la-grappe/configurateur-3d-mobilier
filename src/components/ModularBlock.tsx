@@ -46,7 +46,7 @@ const InteractiveFace: React.FC<InteractiveFaceProps> = ({ moduleId, size, posit
     >
       <meshStandardMaterial
         transparent={true}
-        depthWrite={false}
+        depthWrite={!!storedColor}
         opacity={opacity}
         color={color}
         side={2} // DoubleSide
