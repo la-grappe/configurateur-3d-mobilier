@@ -39,6 +39,11 @@ L'analyse du POC met en évidence des anomalies et axes d'amélioration critique
 - **Action de Rotation (Touche R) :** L'utilisation de la rotation peut provoquer une disparition ou une éjection du module si le calcul de collision après pivotement échoue à trouver un emplacement valide.
 - **Optimisation des Draw Calls :** Avec un grand nombre de modules et de faces interactives, une optimisation via le "instancing" serait nécessaire pour maintenir la fluidité.
 
-## 5. Prochaines Étapes
+## 5. Résolutions Récentes
+
+- **Z-fighting :** Ce problème a été résolu par une séparation spatiale stricte : la grille est à `y=0`, l'ombre (`ContactShadows`) est à `y=-0.2`, et le plan de construction est descendu à `y=-0.5`.
+- **Couleur et sélection du Plateau :** Le bug forçant le Plateau à devenir bleu lors de la sélection a été résolu. Le matériau a été hardcodé dans `ModularBlock.tsx` pour ignorer les couleurs dynamiques. De plus, sa couleur a été harmonisée avec l'ossature des autres cubes/rectangles (`#d2b48c`) pour garantir la cohérence esthétique globale de la scène.
+
+## 6. Prochaines Étapes
 
 [À compléter par le Chef de Projet après la validation du POC]

@@ -147,7 +147,7 @@ const ModularBlock: React.FC<ModularBlockProps> = ({ id, type, position = [0, 0,
     return (
       <group position={position}>
         <Box args={[width, height, depth]}>
-          <meshStandardMaterial color={color} metalness={0.4} roughness={0.5} />
+          <meshStandardMaterial color={frameColor} metalness={0.4} roughness={0.5} />
         </Box>
       </group>
     );

@@ -174,7 +174,7 @@ const PlacedModuleController: React.FC<PlacedModuleControllerProps> = ({ module 
       <ModularBlock
         id={module.id}
         type={module.type}
-        color={selectedModuleId === module.id ? '#3b82f6' : '#ffffff'}
+        color="#ffffff"
         faceColors={module.faceColors}
       />
       {/* Invisible box for easier click-picking */}
