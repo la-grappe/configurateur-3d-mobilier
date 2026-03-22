@@ -9,6 +9,7 @@ const Experience: React.FC = () => {
   const cameraView = useStore((state) => state.cameraView);
   const placedModules = useStore((state) => state.placedModules);
   const isInteracting = useStore((state) => state.isInteracting);
+  const theme = useStore((state) => state.theme);
   const controlsRef = useRef<CameraControls>(null);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ const Experience: React.FC = () => {
 
   return (
     <>
-      <color attach="background" args={['#1a1a1a']} />
+      <color attach="background" args={[theme === 'dark' ? '#0f172a' : '#f1f5f9']} />
       
       <PerspectiveCamera makeDefault position={[300, 300, 300]} fov={50} />
       <CameraControls 
@@ -50,7 +51,7 @@ const Experience: React.FC = () => {
         enabled={!isInteracting}
       />
 
-      <ambientLight intensity={0.5} />
+      <ambientLight intensity={theme === 'dark' ? 0.5 : 0.8} />
       <directionalLight position={[100, 200, 100]} intensity={1.5} castShadow />
       <pointLight position={[-100, 200, -100]} intensity={1} />
 

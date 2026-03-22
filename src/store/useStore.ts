@@ -31,6 +31,8 @@ interface State {
   setModuleFaceColor: (moduleId: string, faceIndex: number, color: string) => void;
   isQuoteModalOpen: boolean;
   setQuoteModalOpen: (isOpen: boolean) => void;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
 }
 
 export const useStore = create<State>((set) => ({
@@ -129,4 +131,6 @@ export const useStore = create<State>((set) => ({
   })),
   isQuoteModalOpen: false,
   setQuoteModalOpen: (isOpen) => set({ isQuoteModalOpen: isOpen }),
+  theme: 'dark',
+  setTheme: (theme: 'light' | 'dark') => set({ theme }),
 }));
