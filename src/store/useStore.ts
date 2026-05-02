@@ -1,4 +1,8 @@
 import { create } from 'zustand';
+import {
+  rotateModule as rotateModuleTransform,
+  toggleVertical as toggleVerticalTransform,
+} from '../utils/moduleTransforms';
 
 export interface PlacedModule {
   id: string;
@@ -46,63 +50,21 @@ export const useStore = create<State>((set) => ({
   updateModule: (id, position) => set((state) => ({
     placedModules: state.placedModules.map((m) => m.id === id ? { ...m, position } : m)
   })),
+
+  // ✅ Utiliser la fonction pure de moduleTransforms
   rotateModule: (id) => set((state) => ({
-    placedModules: state.placedModules.map((m) => {
-      if (m.id !== id) return m;
-
-      // Plateau : Rotation sur Y uniquement s'il n'est pas vertical (X=0)
-      if (m.type === 'plateau') {
-        const newRotY = Math.abs(m.rotation[1]) > 0.1 ? 0 : Math.PI / 2;
-        return { ...m, rotation: [m.rotation[0], newRotY, m.rotation[2]] };
-      }
-
-      // Cubes et Rectangles : Toggle binaire strict sur Y
-      const newRotY = Math.abs(m.rotation[1]) > 0.1 ? 0 : Math.PI / 2;
-      return { ...m, rotation: [m.rotation[0], newRotY, m.rotation[2]] };
-    })
+    placedModules: state.placedModules.map((m) =>
+      m.id === id ? rotateModuleTransform(m) : m
+    )
   })),
+
+  // ✅ Utiliser la fonction pure de moduleTransforms
   setModuleVertical: (id) => set((state) => ({
-    placedModules: state.placedModules.map((m) => {
-      if (m.id !== id) return m;
-      if (m.type === 'plateau') {
-        const isVertical = Math.abs(m.rotation[0] - Math.PI / 2) < 0.1;
-        if (isVertical) {
-          const currentBottom = m.position[1] - 40;
-          return {
-            ...m,
-            position: [m.position[0], currentBottom + 1.25, m.position[2]],
-            rotation: [0, m.rotation[1], m.rotation[2]]
-          };
-        } else {
-          const currentBottom = m.position[1] - 1.25;
-          return {
-            ...m,
-            position: [m.position[0], currentBottom + 40, m.position[2]],
-            rotation: [Math.PI / 2, m.rotation[1], m.rotation[2]]
-          };
-        }
-      }
-      if (m.type === 'rectangle') {
-        const isVertical = Math.abs(m.rotation[2] - Math.PI / 2) < 0.1;
-        if (isVertical) {
-          const currentBottom = m.position[1] - 67 / 2;
-          return {
-            ...m,
-            position: [m.position[0], currentBottom + 20, m.position[2]],
-            rotation: [m.rotation[0], m.rotation[1], 0],
-          };
-        } else {
-          const currentBottom = m.position[1] - 20;
-          return {
-            ...m,
-            position: [m.position[0], currentBottom + 67 / 2, m.position[2]],
-            rotation: [m.rotation[0], m.rotation[1], Math.PI / 2],
-          };
-        }
-      }
-      return m;
-    })
+    placedModules: state.placedModules.map((m) =>
+      m.id === id ? toggleVerticalTransform(m) : m
+    )
   })),
+
   removeModule: (id) => set((state) => ({ placedModules: state.placedModules.filter((m) => m.id !== id) })),
   draggingModule: null,
   setDraggingModule: (type) => set({ draggingModule: type }),
@@ -116,7 +78,7 @@ export const useStore = create<State>((set) => ({
     placedModules: state.placedModules.map((m) => {
       if (m.id !== moduleId) return m;
       const newFaceColors = { ...(m.faceColors || {}) };
-      
+
       if (color === 'transparent') {
         delete newFaceColors[faceIndex];
       } else {
