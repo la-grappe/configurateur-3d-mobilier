@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { createModuleSlice, type ModuleState } from './moduleSlice';
-import { createUISlice, type UIState } from './uiSlice';
-import { createConfigSlice, type ConfigState } from './configSlice';
+import { createModuleSlice } from "./slices/moduleSlice";
+import { createUISlice } from "./slices/uiSlice";
+import { createConfigSlice } from "./slices/configSlice";
 
 export interface PlacedModule {
   id: string;
