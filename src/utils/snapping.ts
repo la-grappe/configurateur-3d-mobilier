@@ -1,3 +1,10 @@
+/**
+ * DEBUG VERSION - snapping.ts with detailed console logging
+ * 
+ * Replace your src/utils/snapping.ts temporarily with this to investigate
+ * the Y position issue at 270° rotation
+ */
+
 import * as THREE from 'three';
 import type { PlacedModule } from '../store/useStore';
 
@@ -7,10 +14,6 @@ export const MODULE_SIZES = {
   plateau: { width: 80, height: 2.5, depth: 80 },
 };
 
-/**
- * Robustly calculates occupied dimensions (AABB) for orthogonal 90-degree rotations.
- * Order: YXZ (matches Scene application)
- */
 export const getModuleAABBDimensions = (type: 'cube' | 'rectangle' | 'plateau', rotation: [number, number, number] | THREE.Euler) => {
   const baseSize = MODULE_SIZES[type];
   let w = baseSize.width;
@@ -19,12 +22,10 @@ export const getModuleAABBDimensions = (type: 'cube' | 'rectangle' | 'plateau', 
 
   const rotArray = rotation instanceof THREE.Euler ? [rotation.x, rotation.y, rotation.z] : rotation;
 
-  // Vérifications binaires simples (0° ou 90°)
-  const isRotatedX = Math.abs(rotArray[0]) > 0.1; // Plateau basculé à la verticale
-  const isRotatedY = Math.abs(rotArray[1]) > 0.1; // Rotation toupie (touche R)
-  const isRotatedZ = Math.abs(rotArray[2]) > 0.1; // Rectangle basculé à la verticale
+  const isRotatedX = Math.abs(rotArray[0]) > 0.1;
+  const isRotatedY = Math.abs(rotArray[1]) > 0.1;
+  const isRotatedZ = Math.abs(rotArray[2]) > 0.1;
 
-  // Application des inversions de dimensions
   if (isRotatedY) [w, d] = [d, w];
   if (isRotatedX) [h, d] = [d, h];
   if (isRotatedZ) [w, h] = [h, w];
@@ -32,9 +33,6 @@ export const getModuleAABBDimensions = (type: 'cube' | 'rectangle' | 'plateau', 
   return { trueW: w, trueH: h, trueD: d };
 };
 
-/**
- * Calculates the 8 global corners of a module.
- */
 export const getCorners = (
   type: 'cube' | 'rectangle' | 'plateau',
   position: [number, number, number] | THREE.Vector3,
@@ -62,9 +60,6 @@ export const getCorners = (
   return corners.map(c => c.applyEuler(euler).add(p));
 };
 
-/**
- * Helper: Computes the Axis-Aligned Bounding Box (AABB) using the robust logic.
- */
 export const getRotatedAABB = (
   type: 'cube' | 'rectangle' | 'plateau',
   position: [number, number, number] | THREE.Vector3,
@@ -78,9 +73,6 @@ export const getRotatedAABB = (
   );
 };
 
-/**
- * Returns true if placing `type` at `position` overlaps any placed module.
- */
 export const hasCollisionAtPosition = (
   type: 'cube' | 'rectangle' | 'plateau',
   position: [number, number, number] | THREE.Vector3,
@@ -100,9 +92,6 @@ export const hasCollisionAtPosition = (
   return false;
 };
 
-/**
- * Core IKEA-style snapping logic.
- */
 export const calculateSnapping = (
   type: 'cube' | 'rectangle' | 'plateau',
   rawPosition: THREE.Vector3,
@@ -116,6 +105,10 @@ export const calculateSnapping = (
   let pos = rawPosition.clone();
 
   const { trueW, trueH, trueD } = getModuleAABBDimensions(type, rotation);
+
+  // 🔍 DEBUG: Log at start of snapping
+  const rotDeg = (rotation[1] * 180 / Math.PI).toFixed(1);
+  console.log(`📐 SNAPPING START - RotY: ${rotDeg}°, AABB: [${trueW}, ${trueH}, ${trueD}], rawPos: [${rawPosition.x.toFixed(1)}, ${rawPosition.y.toFixed(1)}, ${rawPosition.z.toFixed(1)}]`);
 
   // ── Step 1: Automatic Surface Drop ──────────────────────────────────────────
   let highestTop = 0;
@@ -133,7 +126,6 @@ export const calculateSnapping = (
     const mMinZ = m.position[2] - mD / 2;
     const mMaxZ = m.position[2] + mD / 2;
 
-    // Check footprint overlap
     const xOverlap = Math.min(myMaxX, mMaxX) - Math.max(myMinX, mMinX);
     const zOverlap = Math.min(myMaxZ, mMaxZ) - Math.max(myMinZ, mMinZ);
 
@@ -143,6 +135,7 @@ export const calculateSnapping = (
   }
 
   pos.y = highestTop + trueH / 2;
+  console.log(`📐 After surface drop: Y = ${pos.y.toFixed(2)}`);
 
   // ── Plateau Specific Logic ──────────────────────────────────────────────────
   if (type === 'plateau') {
@@ -150,7 +143,6 @@ export const calculateSnapping = (
     const isVertical = trueH >= 10;
 
     if (isHorizontal) {
-      // Rule 1: Point to center of supporting cluster
       const modulesBelow = placedModules.filter(m => {
         if (m.id === excludeId) return false;
         const { trueW: mW, trueH: mH, trueD: mD } = getModuleAABBDimensions(m.type, m.rotation);
@@ -175,7 +167,6 @@ export const calculateSnapping = (
         pos.z = (minZ + maxZ) / 2;
       }
     } else if (isVertical) {
-      // Rule 2: Face Snapping
       let bestXDelta = 0, bestZDelta = 0;
       let minDeltaX = 10, minDeltaZ = 10;
 
@@ -187,13 +178,13 @@ export const calculateSnapping = (
         const mMinZ = m.position[2] - mD / 2;
         const mMaxZ = m.position[2] + mD / 2;
 
-        if (trueW < 10) { // Wall facing X
+        if (trueW < 10) {
           const d1 = Math.abs((pos.x - trueW / 2) - mMaxX);
           if (d1 < minDeltaX) { minDeltaX = d1; bestXDelta = mMaxX + trueW / 2 - pos.x; }
           const d2 = Math.abs((pos.x + trueW / 2) - mMinX);
           if (d2 < minDeltaX) { minDeltaX = d2; bestXDelta = mMinX - trueW / 2 - pos.x; }
         }
-        if (trueD < 10) { // Wall facing Z
+        if (trueD < 10) {
           const d1 = Math.abs((pos.z - trueD / 2) - mMaxZ);
           if (d1 < minDeltaZ) { minDeltaZ = d1; bestZDelta = mMaxZ + trueD / 2 - pos.z; }
           const d2 = Math.abs((pos.z + trueD / 2) - mMinZ);
@@ -203,7 +194,6 @@ export const calculateSnapping = (
       if (minDeltaX < 10 && minDeltaX <= minDeltaZ) pos.x += bestXDelta;
       else if (minDeltaZ < 10) pos.z += bestZDelta;
 
-      // Rule 3: Vertical Y alignment
       const snappedMinY = Math.round((pos.y - trueH / 2) / 40) * 40;
       if (Math.abs((pos.y - trueH / 2) - snappedMinY) < 10) {
         pos.y = snappedMinY + trueH / 2;
@@ -236,7 +226,10 @@ export const calculateSnapping = (
   }
 
   // ── Step 4: Stand Bounds Correction ─────────────────────────────────────────
-  if (pos.y - trueH / 2 < -0.1) pos.y = trueH / 2;
+  if (pos.y - trueH / 2 < -0.1) {
+    console.log(`⚠️ Y NEGATIVE! Before bounds correction: Y=${pos.y.toFixed(2)}, setting to ${(trueH / 2).toFixed(2)}`);
+    pos.y = trueH / 2;
+  }
   if (pos.y + trueH / 2 > 240) pos.y = 240 - trueH / 2;
 
   const maxXLimit = (standWidth - trueW) / 2;
@@ -258,6 +251,9 @@ export const calculateSnapping = (
     }
   }
 
+  // 🔍 DEBUG: Log final position
+  console.log(`📐 SNAPPING END - Final pos: [${pos.x.toFixed(1)}, ${pos.y.toFixed(2)}, ${pos.z.toFixed(1)}]`);
+
   return pos;
 };
 
@@ -266,7 +262,7 @@ export const stepModuleUp = (
   rotation: [number, number, number],
   currentCenterY: number
 ): number => {
-  const step = 40; // Standard step height
+  const step = 40;
   const { trueH } = getModuleAABBDimensions(type, rotation);
   return Math.min(currentCenterY + step, 240 - trueH / 2);
 };

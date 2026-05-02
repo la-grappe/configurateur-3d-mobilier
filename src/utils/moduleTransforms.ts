@@ -34,9 +34,31 @@ const MIN_MODULE_Y = 0.1;
  * @returns New module with updated rotation
  */
 export const rotateModule = (module: PlacedModule): PlacedModule => {
-    // All types: Toggle Y-rotation (0° ↔ 90°)
+    // All types: Progressive Y-rotation (0° → 90° → 180° → 270° → 360°/0°)
     const currentRotY = module.rotation[1];
-    const newRotY = Math.abs(currentRotY) > ROTATION_TOLERANCE ? 0 : Math.PI / 2;
+
+    // Normalize current rotation to [0, 2π)
+    let normalized = currentRotY % (Math.PI * 2);
+    if (normalized < 0) normalized += Math.PI * 2;
+
+    // Add 90° (π/2 radians)
+    let newRotY = normalized + Math.PI / 2;
+
+    // Wrap back to [0, 2π)
+    newRotY = newRotY % (Math.PI * 2);
+
+    // 🔍 DEBUG LOG
+    const currentDeg = (currentRotY * 180 / Math.PI).toFixed(1);
+    const newDeg = (newRotY * 180 / Math.PI).toFixed(1);
+    console.log(`🔄 ROTATION DEBUG - Module ${module.id}:`, {
+        currentRotY: `${currentDeg}°`,
+        newRotY: `${newDeg}°`,
+        position: {
+            x: module.position[0].toFixed(2),
+            y: module.position[1].toFixed(2),
+            z: module.position[2].toFixed(2)
+        }
+    });
 
     return {
         ...module,

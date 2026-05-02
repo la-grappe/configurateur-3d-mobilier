@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { CameraControls, PerspectiveCamera, Environment, ContactShadows } from '@react-three/drei';
-import { useStore } from '../store/useStore';
+import { useStore } from '../store';
 import Stand from './Stand';
 import DragLayer from './DragLayer';
 import PlacedModuleController from './PlacedModuleController';
@@ -16,7 +16,7 @@ const Experience: React.FC = () => {
     if (!controlsRef.current) return;
 
     const controls = controlsRef.current;
-    
+
     switch (cameraView) {
       case 'top':
         controls.setLookAt(0, 500, 0, 0, 0, 0, true);
@@ -41,12 +41,12 @@ const Experience: React.FC = () => {
   return (
     <>
       <color attach="background" args={[theme === 'dark' ? '#0f172a' : '#f1f5f9']} />
-      
+
       <PerspectiveCamera makeDefault position={[300, 300, 300]} fov={50} />
-      <CameraControls 
-        ref={controlsRef} 
-        makeDefault 
-        minPolarAngle={0} 
+      <CameraControls
+        ref={controlsRef}
+        makeDefault
+        minPolarAngle={0}
         maxPolarAngle={Math.PI / 1.75}
         enabled={!isInteracting}
       />
@@ -61,23 +61,23 @@ const Experience: React.FC = () => {
 
       {/* Dynamic Placed Modules */}
       {placedModules.map((module) => (
-        <PlacedModuleController 
-          key={module.id} 
-          module={module} 
+        <PlacedModuleController
+          key={module.id}
+          module={module}
         />
       ))}
 
       {/* Drag & Drop Feedback Layer */}
       <DragLayer />
 
-      <ContactShadows 
-        position={[0, 0, 0]} 
-        opacity={0.4} 
-        scale={1000} 
-        blur={2} 
-        far={10} 
-        resolution={256} 
-        color="#000000" 
+      <ContactShadows
+        position={[0, 0, 0]}
+        opacity={0.4}
+        scale={1000}
+        blur={2}
+        far={10}
+        resolution={256}
+        color="#000000"
       />
     </>
   );

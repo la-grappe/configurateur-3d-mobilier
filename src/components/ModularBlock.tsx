@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Plane } from '@react-three/drei';
-import { useStore } from '../store/useStore';
+import { useStore } from '../store';
 
 interface InteractiveFaceProps {
   moduleId?: string;
@@ -17,7 +17,7 @@ const InteractiveFace: React.FC<InteractiveFaceProps> = ({ moduleId, size, posit
   const setModuleFaceColor = useStore(state => state.setModuleFaceColor);
 
   const isClickable = !!selectedColor && !!moduleId;
-  
+
   // Rules:
   // 1. If storedColor exists -> display it (opacity 1)
   // 2. If hovered -> display hover highlight (opacity 0.4)
@@ -141,7 +141,7 @@ const ModularBlock: React.FC<ModularBlockProps> = ({ id, type, position = [0, 0,
     ];
   }, [width, height, depth]);
 
-  const frameColor = "#d2b48c"; 
+  const frameColor = "#d2b48c";
 
   if (type === 'plateau') {
     return (

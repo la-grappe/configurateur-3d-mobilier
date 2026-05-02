@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useStore } from '../store/useStore';
+import { useStore } from '../store';
 import { ShoppingCart, User } from 'lucide-react';
 
 const COLOR_NAMES: Record<string, string> = {
@@ -43,21 +43,21 @@ export const QuoteModal = () => {
   const totalFaces = Object.values(stats.colors).reduce((a, b) => a + b, 0);
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 pointer-events-auto" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 pointer-events-auto"
       onClick={() => setQuoteModalOpen(false)}
       onPointerDown={(e) => e.stopPropagation()}
     >
       {/* La boîte blanche du devis */}
-      <div 
-        className="relative bg-white p-8 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" 
+      <div
+        className="relative bg-white p-8 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        
+
         {/* LE BOUTON FERMER (Obligatoire) */}
-        <button 
-          onClick={() => setQuoteModalOpen(false)} 
+        <button
+          onClick={() => setQuoteModalOpen(false)}
           className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-3xl font-bold leading-none"
           aria-label="Fermer"
         >
@@ -66,11 +66,11 @@ export const QuoteModal = () => {
 
         {/* L'EN-TÊTE AVEC LE LOGO */}
         <div className="flex flex-col sm:flex-row items-center justify-between border-b pb-4 mb-6 gap-4">
-          <img 
-            src="/logo.png" 
-            alt="Muto Event" 
+          <img
+            src="/logo.png"
+            alt="Muto Event"
             className="h-16 w-auto object-contain"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }} 
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <h2 className="text-2xl font-bold text-gray-800 uppercase tracking-wider text-right">
             Devis Estimatif
@@ -116,7 +116,7 @@ export const QuoteModal = () => {
                     <td className="py-4 text-right font-bold">{stats.plateaux}</td>
                   </tr>
                 )}
-                
+
                 {totalFaces > 0 && (
                   <>
                     <tr>
@@ -152,10 +152,10 @@ export const QuoteModal = () => {
         {/* Footer Section */}
         <div className="quote-footer border-t border-gray-100 pt-8 mt-12 flex justify-between items-center text-sm text-gray-400" style={{ borderTop: '1px solid #f3f4f6' }}>
           <div className="flex items-center gap-2">
-             <User size={16} color="#9ca3af" />
-             <span>Document généré numériquement - Muto Event</span>
+            <User size={16} color="#9ca3af" />
+            <span>Document généré numériquement - Muto Event</span>
           </div>
-          <button 
+          <button
             className="print-btn"
             style={{ backgroundColor: '#2563eb', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 'bold' }}
             onClick={() => window.print()}

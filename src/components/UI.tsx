@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../store/useStore';
+import { useStore } from '../store';
 import { Maximize, Box, Camera, Eraser, FileText, Sun, Moon } from 'lucide-react';
 import { QuoteModal } from './QuoteModal';
 
@@ -13,11 +13,11 @@ const COLORS = [
 ];
 
 const UI: React.FC = () => {
-  const { 
-    standWidth, 
-    standDepth, 
-    setStandSize, 
-    cameraView, 
+  const {
+    standWidth,
+    standDepth,
+    setStandSize,
+    cameraView,
     setCameraView,
     draggingModule,
     setDraggingModule,
@@ -47,7 +47,7 @@ const UI: React.FC = () => {
             <Box size={24} className="text-blue-500" />
             <h1 className={`text-xl font-bold uppercase tracking-tight ${textMainClasses}`}>Configurateur 3D</h1>
           </div>
-          
+
           <div className="flex flex-col gap-2">
             <label className={textSecClasses}>Dimensions du stand (cm)</label>
             <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ const UI: React.FC = () => {
                 { id: 'rectangle', label: 'Rect 67cm', icon: <div className="w-8 h-6 border-2 border-slate-900 dark:border-white rounded-sm" /> },
                 { id: 'plateau', label: 'Plateau 120cm', icon: <div className="w-12 h-2 border-2 border-slate-900 dark:border-white rounded-sm" />, span: true },
               ].map((mod) => (
-                <div 
+                <div
                   key={mod.id}
                   className={`bg-slate-50 hover:bg-slate-200 dark:bg-slate-800/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer transition-all p-3 rounded-lg flex flex-col items-center gap-2 ${mod.span ? 'col-span-2' : ''} ${draggingModule === mod.id ? 'ring-2 ring-blue-500 scale-95 shadow-inner' : 'shadow-sm active:scale-95'}`}
                   onMouseDown={() => setDraggingModule(mod.id as any)}
@@ -94,7 +94,7 @@ const UI: React.FC = () => {
 
       {/* Top Right Controls Group */}
       <div className="fixed top-6 right-6 z-50 flex items-center gap-4 pointer-events-auto">
-        <button 
+        <button
           className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 hover:brightness-110"
           style={{ backgroundColor: '#10b981' }}
           onClick={() => setQuoteModalOpen(true)}
@@ -103,7 +103,7 @@ const UI: React.FC = () => {
           <span className="tracking-wide">Générer le devis</span>
         </button>
 
-        <button 
+        <button
           onClick={toggleTheme}
           className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-[#0a192f] text-[#111827] dark:text-white border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300"
           title={theme === 'dark' ? 'Passer au Mode Clair' : 'Passer au Mode Sombre'}
@@ -120,7 +120,7 @@ const UI: React.FC = () => {
       <div className="flex flex-col items-center gap-4 pointer-events-none w-full">
         {/* Color Palette */}
         <div className="bg-white dark:bg-[#0a192f] border border-[#e5e7eb] dark:border-slate-700 shadow-2xl rounded-2xl p-4 flex gap-4 pointer-events-auto transition-all">
-          <button 
+          <button
             className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${selectedColor === 'transparent' ? 'border-blue-500 scale-110 shadow-lg' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-blue-500'}`}
             onClick={() => setSelectedColor('transparent')}
             title="Gomme (Vider)"
@@ -139,8 +139,8 @@ const UI: React.FC = () => {
               title={color.name}
             />
           ))}
-          
-          <button 
+
+          <button
             className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold transition-all ${selectedColor === null ? 'border-blue-500 scale-110 shadow-lg' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
             onClick={() => setSelectedColor(null)}
             title="Sélecteur"
@@ -159,7 +159,7 @@ const UI: React.FC = () => {
             { id: 'right', icon: 'D', label: 'Droite' },
             { id: 'iso', icon: 'ISO', label: 'Isom' },
           ].map((view) => (
-            <button 
+            <button
               key={view.id}
               className={`min-w-[50px] h-12 flex items-center justify-center rounded-xl font-bold text-sm transition-all active:scale-95 ${cameraView === view.id ? 'bg-blue-500 text-white shadow-lg' : 'text-[#111827] dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
               onClick={() => setCameraView(view.id as any)}
