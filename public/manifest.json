@@ -1,0 +1,9 @@
+{
+  "name": "Configurateur 3D",
+  "short_name": "Config3D",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": []
+}
